@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eVoting - Sistem Pemungutan Suara</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: #f5f0e8;
+            font-family: 'Inter', sans-serif;
+            color: #1a1a1a;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+        }
+
+        .container { max-width: 960px; width: 100%; }
+
+        /* NEO-BRUTALISM */
+        .neo-card {
+            background: #ffffff;
+            border: 3px solid #1a1a1a;
+            box-shadow: 8px 8px 0px #1a1a1a;
+            padding: 1.8rem;
+            transition: all 0.1s ease;
+        }
+        .neo-card:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 12px 12px 0px #1a1a1a;
+        }
+
+        .neo-btn {
+            display: inline-block;
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.4rem;
+            letter-spacing: 1px;
+            border: 3px solid #1a1a1a;
+            background: #ffdd57;
+            color: #1a1a1a;
+            padding: 0.7rem 1.8rem;
+            cursor: pointer;
+            box-shadow: 5px 5px 0px #1a1a1a;
+            transition: all 0.1s ease;
+            text-transform: uppercase;
+        }
+        .neo-btn:hover { transform: translate(-3px, -3px); box-shadow: 8px 8px 0px #1a1a1a; }
+        .neo-btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px #1a1a1a; }
+        .neo-btn.secondary { background: #e0e0e0; }
+        .neo-btn.danger { background: #ff6b6b; color: #fff; }
+        .neo-btn.success { background: #51cf66; color: #fff; }
+        .neo-btn.block { width: 100%; text-align: center; }
+
+        .neo-input {
+            width: 100%; padding: 0.8rem 1rem;
+            font-family: 'Inter', sans-serif; font-size: 1rem;
+            border: 3px solid #1a1a1a;
+            box-shadow: 4px 4px 0px #1a1a1a;
+            background: #fff; outline: none;
+            transition: all 0.1s ease;
+        }
+        .neo-input:focus { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px #1a1a1a; }
+
+        /* HEADER */
+        .header { text-align: center; margin-bottom: 1.5rem; }
+        .header h1 {
+            font-family: 'Bebas Neue', cursive; font-size: 4rem;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: #1a1a1a; text-shadow: 4px 4px 0px #ffdd57;
+        }
+        .header p {
+            font-size: 1.1rem; margin-top: 0.3rem; font-weight: 600;
+            background: #1a1a1a; color: #fff;
+            display: inline-block; padding: 0.3rem 1.5rem;
+            border: 3px solid #1a1a1a; box-shadow: 4px 4px 0px #ffdd57;
+        }
+
+        /* STEP INDICATOR */
+        .steps {
+            display: flex; justify-content: center; gap: 1.5rem;
+            margin-bottom: 2rem; flex-wrap: wrap;
+        }
+        .step {
+            font-family: 'Bebas Neue', cursive; font-size: 1.2rem; letter-spacing: 1px;
+            background: #fff; padding: 0.5rem 1.2rem;
+            border: 3px solid #1a1a1a; box-shadow: 4px 4px 0px #1a1a1a;
+        }
+        .step span { background: #1a1a1a; color: #fff; padding: 0.1rem 0.6rem; margin-right: 0.5rem; }
+
+        /* NOTIFICATION */
+        .notification {
+            padding: 1rem 1.2rem; border: 3px solid #1a1a1a;
+            margin-bottom: 1.5rem; font-weight: 600;
+            display: none; box-shadow: 5px 5px 0px #1a1a1a;
+        }
+        .notification.success { background: #d3f9d8; display: block; }
+        .notification.error { background: #ffe3e3; display: block; }
+        .notification.info { background: #d0ebff; display: block; }
+
+        /* GRID */
+        .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+        .full-width { grid-column: 1 / -1; }
+        .card-title {
+            font-family: 'Bebas Neue', cursive; font-size: 1.8rem;
+            letter-spacing: 1px; margin-bottom: 1rem;
+            border-bottom: 3px solid #1a1a1a; padding-bottom: 0.5rem;
+        }
+
+        /* VOTER ID DISPLAY */
+        .voter-id-box {
+            background: #1a1a1a; color: #ffdd57;
+            padding: 0.8rem; margin: 0.8rem 0;
+            font-family: monospace; font-size: 0.85rem;
+            word-break: break-all; border: 3px solid #ffdd57;
+            display: none;
+        }
+        .voter-id-box .label { color: #aaa; font-size: 0.75rem; text-transform: uppercase; }
+        .voter-id-box .id-value { font-size: 1rem; font-weight: 700; display: block; margin-top: 0.3rem; }
+        .copy-btn {
+            background: #ffdd57; color: #1a1a1a; border: none;
+            padding: 0.3rem 0.8rem; font-weight: 700; cursor: pointer;
+            margin-top: 0.5rem; font-size: 0.8rem;
+        }
+
+        /* CANDIDATE */
+        .candidate-item {
+            display: flex; align-items: center; gap: 1rem;
+            padding: 1rem; margin-bottom: 0.8rem;
+            border: 3px solid #1a1a1a; background: #fff;
+            box-shadow: 4px 4px 0px #1a1a1a;
+            cursor: pointer; transition: all 0.1s ease;
+        }
+        .candidate-item:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px #1a1a1a; }
+        .candidate-item.selected {
+            background: #ffdd57; box-shadow: 6px 6px 0px #1a1a1a;
+            transform: translate(-2px, -2px);
+        }
+        .candidate-radio {
+            width: 28px; height: 28px; border: 3px solid #1a1a1a;
+            border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; flex-shrink: 0;
+            font-size: 18px; font-weight: 700;
+        }
+        .candidate-item.selected .candidate-radio { background: #1a1a1a; color: #ffdd57; }
+        .candidate-info h3 { font-family: 'Bebas Neue', cursive; font-size: 1.5rem; letter-spacing: 1px; }
+        .candidate-info p { font-size: 0.85rem; color: #555; }
+
+        /* VOTER LIST */
+        .voter-list { max-height: 220px; overflow-y: auto; }
+        .voter-item {
+            padding: 0.5rem 0; border-bottom: 2px solid #eee;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .voter-item .voter-name { font-weight: 600; }
+        .voter-item .voter-status {
+            font-size: 0.75rem; padding: 0.15rem 0.6rem;
+            border: 2px solid #1a1a1a; font-weight: 700;
+        }
+        .voter-item .voter-status.done { background: #51cf66; color: #fff; }
+        .voter-item .voter-status.pending { background: #ffdd57; }
+
+        /* RESULTS */
+        .result-bar-wrapper { margin-bottom: 1rem; }
+        .result-bar-label { display: flex; justify-content: space-between; font-weight: 700; margin-bottom: 0.3rem; }
+        .result-bar-track {
+            width: 100%; height: 30px; background: #e9ecef;
+            border: 3px solid #1a1a1a; box-shadow: inset 2px 2px 0px rgba(0,0,0,0.1);
+        }
+        .result-bar-fill {
+            height: 100%; background: #ffdd57; border-right: 3px solid #1a1a1a;
+            transition: width 0.4s ease; display: flex;
+            align-items: center; padding-left: 8px;
+            font-weight: 700; font-size: 0.9rem; min-width: fit-content;
+        }
+
+        .refresh-area { display: flex; justify-content: center; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap; }
+
+        @media (max-width: 800px) {
+            .grid { grid-template-columns: 1fr; }
+            .header h1 { font-size: 2.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <div class="header">
+            <h1>🗳️ eVoting</h1>
+            <p>Sistem Pemungutan Suara Terdistribusi</p>
+        </div>
+
+        <!-- STEP INSTRUCTION -->
+        <div class="steps">
+            <div class="step"><span>1</span> Daftar Pemilih</div>
+            <div class="step"><span>2</span> Pilih Kandidat</div>
+            <div class="step"><span>3</span> Masukkan ID & Vote</div>
+        </div>
+
+        <!-- NOTIFICATION -->
+        <div id="notification" class="notification"></div>
+
+        <!-- GRID LAYOUT -->
+        <div class="grid">
+            <!-- KIRI: Daftar & Registrasi Pemilih -->
+            <div class="neo-card">
+                <div class="card-title">📋 Langkah 1: Daftar</div>
+                <p style="font-size:0.85rem;margin-bottom:0.8rem;color:#555;">
+                    Masukkan nama Anda, lalu klik <strong>Daftar</strong>. 
+                    <br>Simpan <strong>Voter ID</strong> yang muncul — itu diperlukan untuk memilih!
+                </p>
+                <div style="display:flex;gap:0.5rem;margin-bottom:1rem;">
+                    <input type="text" id="voterNameInput" class="neo-input" placeholder="Nama lengkap..." />
+                    <button id="registerVoterBtn" class="neo-btn" style="white-space:nowrap;">Daftar</button>
+                </div>
+
+                <!-- VOTER ID RESULT -->
+                <div id="voterIdBox" class="voter-id-box">
+                    <div class="label">⬇️ VOTER ID ANDA (copy dan simpan!)</div>
+                    <span class="id-value" id="voterIdValue"></span>
+                    <button class="copy-btn" id="copyVoterIdBtn">📋 COPY VOTER ID</button>
+                </div>
+
+                <p style="font-weight:700;margin-bottom:0.5rem;">Pemilih Terdaftar:</p>
+                <div class="voter-list" id="voterList">
+                    <p style="color:#888;font-size:0.9rem;">Belum ada pemilih.</p>
+                </div>
+            </div>
+
+            <!-- TENGAH: Pilih Kandidat -->
+            <div class="neo-card">
+                <div class="card-title">✅ Langkah 2: Pilih</div>
+                <p style="font-size:0.85rem;margin-bottom:0.8rem;color:#555;">
+                    Klik salah satu kandidat di bawah ini untuk memilihnya.
+                </p>
+                <div id="candidateList"></div>
+            </div>
+
+            <!-- KANAN: Vote -->
+            <div class="neo-card">
+                <div class="card-title">🗳️ Langkah 3: Vote</div>
+                <p style="font-size:0.85rem;margin-bottom:0.8rem;color:#555;">
+                    Masukkan <strong>Voter ID</strong> yang tadi didapat, 
+                    pastikan sudah memilih kandidat, lalu klik <strong>Vote!</strong>
+                </p>
+
+                <label style="font-weight:700;font-size:0.85rem;">Voter ID:</label>
+                <input type="text" id="voterIdVoteInput" class="neo-input" 
+                       placeholder="Tempel Voter ID di sini..." 
+                       style="margin-bottom:0.8rem;" />
+
+                <label style="font-weight:700;font-size:0.85rem;">Kandidat terpilih:</label>
+                <div id="selectedCandidateDisplay" 
+                     style="padding:0.8rem;border:3px solid #1a1a1a;background:#e9ecef;margin-bottom:1rem;font-weight:600;min-height:3rem;">
+                    Belum ada kandidat dipilih.
+                </div>
+
+                <button id="castVoteBtn" class="neo-btn success block">🗳️ KIRIM VOTE!</button>
+            </div>
+
+            <!-- BAWAH: Hasil -->
+            <div class="neo-card full-width">
+                <div class="card-title">📊 Hasil Voting</div>
+                <div id="resultsContainer">
+                    <p style="color:#888;font-size:0.9rem;">Belum ada data hasil voting.</p>
+                </div>
+                <div class="refresh-area">
+                    <button id="refreshAllBtn" class="neo-btn">🔄 Refresh Semua</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================
+        const notification = document.getElementById('notification');
+
+        function showNotification(msg, type = 'info') {
+            notification.className = `notification ${type}`;
+            notification.textContent = msg;
+            notification.style.display = 'block';
+            setTimeout(() => { notification.style.display = 'none'; }, 5000);
+        }
+
+        // --- VOTERS ---
+        async function loadVoters() {
+            try {
+                const res = await fetch('/api/voters');
+                const voters = await res.json();
+                const container = document.getElementById('voterList');
+                if (voters.length === 0) {
+                    container.innerHTML = '<p style="color:#888;font-size:0.9rem;">Belum ada pemilih terdaftar.</p>';
+                    return;
+                }
+                container.innerHTML = voters.map(v =>
+                    `<div class="voter-item">
+                        <span class="voter-name">👤 ${v.name}</span>
+                        <span class="voter-status ${v.has_voted ? 'done' : 'pending'}">
+                            ${v.has_voted ? '✓ SUDAH' : '◻ BELUM'}
+                        </span>
+                    </div>`
+                ).join('');
+            } catch (err) { console.error(err); }
+        }
+
+        // --- REGISTER VOTER ---
+        document.getElementById('registerVoterBtn').addEventListener('click', async () => {
+            const nameInput = document.getElementById('voterNameInput');
+            const name = nameInput.value.trim();
+            if (!name) { showNotification('Masukkan nama pemilih!', 'error'); return; }
+
+            try {
+                const res = await fetch('/api/voters', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showNotification(`✅ "${name}" berhasil didaftarkan!`, 'success');
+                    // Tampilkan Voter ID
+                    const box = document.getElementById('voterIdBox');
+                    document.getElementById('voterIdValue').textContent = data.voter_id;
+                    box.style.display = 'block';
+                    // Auto-fill voter ID input
+                    document.getElementById('voterIdVoteInput').value = data.voter_id;
+                    nameInput.value = '';
+                    loadVoters();
+                } else {
+                    showNotification(`❌ ${data.error}`, 'error');
+                }
+            } catch (err) { showNotification('Gagal menghubungi server.', 'error'); }
+        });
+
+        // --- COPY VOTER ID ---
+        document.getElementById('copyVoterIdBtn').addEventListener('click', () => {
+            const idText = document.getElementById('voterIdValue').textContent;
+            navigator.clipboard.writeText(idText).then(() => {
+                showNotification('✅ Voter ID disalin ke clipboard!', 'success');
+            }).catch(() => {
+                // Fallback
+                const textArea = document.createElement('textarea');
+                textArea.value = idText;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                textArea.remove();
+                showNotification('✅ Voter ID disalin!', 'success');
+            });
+        });
+
+        // --- CANDIDATES ---
+        async function loadCandidates() {
+            try {
+                const res = await fetch('/api/candidates');
+                const json = await res.json();
+                const candidates = json.data;
+                const container = document.getElementById('candidateList');
+                if (candidates.length === 0) {
+                    container.innerHTML = '<p style="color:#888;">Belum ada kandidat.</p>';
+                    return;
+                }
+                container.innerHTML = candidates.map(c =>
+                    `<div class="candidate-item" data-id="${c.id}" data-name="${c.name}">
+                        <div class="candidate-radio">${c.id.slice(-1).toUpperCase()}</div>
+                        <div class="candidate-info">
+                            <h3>${c.name}</h3>
+                            <p>${c.vision}</p>
+                        </div>
+                    </div>`
+                ).join('');
+
+                document.querySelectorAll('.candidate-item').forEach(el => {
+                    el.addEventListener('click', () => {
+                        document.querySelectorAll('.candidate-item').forEach(e => e.classList.remove('selected'));
+                        el.classList.add('selected');
+                        document.getElementById('selectedCandidateDisplay').innerHTML = 
+                            `✅ Terpilih: <strong>${el.dataset.name}</strong>`;
+                    });
+                });
+            } catch (err) { console.error(err); }
+        }
+
+        // --- CAST VOTE ---
+        document.getElementById('castVoteBtn').addEventListener('click', async () => {
+            const voterIdInput = document.getElementById('voterIdVoteInput');
+            const voter_id = voterIdInput.value.trim();
+            const selected = document.querySelector('.candidate-item.selected');
+
+            if (!voter_id) {
+                showNotification('⚠️ Masukkan Voter ID terlebih dahulu!', 'error');
+                voterIdInput.focus();
+                return;
+            }
+            if (!selected) {
+                showNotification('⚠️ Pilih kandidat terlebih dahulu!', 'error');
+                return;
+            }
+            const candidate_id = selected.dataset.id;
+
+            // Konfirmasi
+            if (!confirm(`Yakin ingin memilih "${selected.dataset.name}"?\n\nVoter ID: ${voter_id}`)) return;
+
+            try {
+                const res = await fetch('/api/vote', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ voter_id, candidate_id })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showNotification(`🎉 ${data.message}`, 'success');
+                    voterIdInput.value = '';
+                    document.querySelectorAll('.candidate-item').forEach(e => e.classList.remove('selected'));
+                    document.getElementById('selectedCandidateDisplay').innerHTML = 'Belum ada kandidat dipilih.';
+                    loadVoters();
+                    loadResults();
+                } else {
+                    showNotification(`❌ ${data.error}`, 'error');
+                }
+            } catch (err) { showNotification('Gagal menghubungi server.', 'error'); }
+        });
+
+        // --- RESULTS ---
+        async function loadResults() {
+            try {
+                const res = await fetch('/api/results');
+                const json = await res.json();
+                const { total_voters, results } = json.data;
+                const container = document.getElementById('resultsContainer');
+
+                if (results.length === 0) {
+                    container.innerHTML = '<p style="color:#888;">Belum ada data hasil voting.</p>';
+                    return;
+                }
+
+                const maxVotes = Math.max(...results.map(r => r.total_votes), 1);
+                const pct = (votes) => maxVotes > 0 ? ((votes / maxVotes) * 100) : 0;
+
+                container.innerHTML = `
+                    <p style="font-weight:700;margin-bottom:1rem;">
+                        Total pemilih: <span style="background:#1a1a1a;color:#fff;padding:0.2rem 0.8rem;">${total_voters}</span> sudah memilih
+                    </p>
+                    ${results.map(r => `
+                        <div class="result-bar-wrapper">
+                            <div class="result-bar-label">
+                                <span>${r.name}</span>
+                                <span>${r.total_votes} suara</span>
+                            </div>
+                            <div class="result-bar-track">
+                                <div class="result-bar-fill" style="width:${Math.max(pct(r.total_votes), 8)}%;">
+                                    ${r.total_votes > 0 ? `${Math.round((r.total_votes / maxVotes) * 100)}%` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                `;
+            } catch (err) { console.error(err); }
+        }
+
+        // --- REFRESH ---
+        document.getElementById('refreshAllBtn').addEventListener('click', () => {
+            loadVoters();
+            loadCandidates();
+            loadResults();
+            showNotification('🔄 Data diperbarui!', 'info');
+        });
+
+        // --- INIT ---
+        loadVoters();
+        loadCandidates();
+        loadResults();
+    </script>
+</body>
+</html>
+
