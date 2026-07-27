@@ -186,7 +186,7 @@ def cast_vote():
         conn.close()
         return jsonify({"error": "Anda sudah memberikan suara"}), 409
 
-    # Cek apakah kandidat ada
+    # Cek kandidat
     cur.execute("SELECT id FROM candidates WHERE id = ?", (candidate_id,))
     if not cur.fetchone():
         conn.close()
